@@ -56,7 +56,7 @@ def _is_etf_code(stock_code: str) -> bool:
     - Shanghai ETF: 51xxxx, 52xxxx, 56xxxx, 58xxxx
     - Shenzhen ETF: 15xxxx, 16xxxx, 18xxxx
     """
-    code = stock_code.strip().split('.')[0]
+    code = normalize_stock_code(stock_code)
     return code.startswith(_ETF_ALL_PREFIXES) and len(code) == 6
 
 
