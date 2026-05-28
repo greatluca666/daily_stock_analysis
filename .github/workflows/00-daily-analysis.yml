@@ -28,6 +28,10 @@ concurrency:
   group: stock-analysis
   cancel-in-progress: false
 
+# 权限：允许 workflow 提交文件回仓库
+permissions:
+  contents: write
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -487,16 +491,17 @@ jobs:
             echo "📜 最近日志（最后 30 行）:"
             tail -30 logs/stock_analysis_*.log 2>/dev/null || echo "无日志"
           fi
-                  - name: 提交报告到仓库
-          if: success()
-          run: |
-            git config --local user.email "github-actions[bot]@users.noreply.github.com"
-            git config --local user.name "github-actions[bot]"
-            git add reports/*.md 2>/dev/null || true
-            if git diff --staged --quiet; then
-              echo "📝 没有新的报告文件需要提交"
-            else
-              git commit -m "chore: 自动提交每日股票分析报告 $(date +'%Y-%m-%d')"
-              git push
-              echo "✅ 报告已提交到仓库"
-            fi
+
+      - name: 提交报告到仓库
+        if: success()
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add reports/*.md 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "📝 没有新的报告文件需要提交"
+          else
+            git commit -m "chore: 自动提交每日股票分析报告 $(date +'%Y-%m-%d')"
+            git push
+            echo "✅ 报告已提交到仓库"
+          fi
