@@ -55,7 +55,7 @@ env/
 # 数据和日志
 /data/
 logs/
-reports/
+# reports/ - 注释掉，允许提交报告文件到仓库以支持 GitHub Pages
 *.db
 *.sqlite
 *.sqlite3
