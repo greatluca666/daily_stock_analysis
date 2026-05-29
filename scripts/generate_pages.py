@@ -4,7 +4,7 @@
 生成 GitHub Pages 静态网站
 将每日股票分析报告 (Markdown) 转换为美观的网页
 - 使用 python-markdown + tables/fenced_code/toc 扩展
-- 现代化 UI，支持深色卡片、表格美化、代码高亮、响应式布局
+- 设计风格参考 apps/dsa-web: 青色/紫色渐变 + 深色主题 + 柔和阴影 + 动画
 """
 
 import re
@@ -112,29 +112,25 @@ def render_markdown(md_text: str) -> str:
 
 
 def generate_css():
+    """生成 CSS 样式 - 参考 dsa-web 设计风格"""
     css = r"""
 :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --accent: #8b5cf6;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --bg: #f6f8fb;
-    --bg-soft: #eef2f7;
-    --card: #ffffff;
-    --text: #111827;
-    --text-soft: #4b5563;
-    --muted: #6b7280;
-    --border: #e5e7eb;
-    --code-bg: #0f172a;
-    --code-text: #e2e8f0;
-    --table-header-bg: #f1f5f9;
-    --table-row-alt: #f9fafb;
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
-    --shadow-md: 0 4px 14px rgba(15, 23, 42, .08);
-    --shadow-lg: 0 12px 32px rgba(15, 23, 42, .12);
-    --radius: 14px;
+    --primary: 189 100% 50%;
+    --accent: 270 70% 65%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --danger: 0 84% 60%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 14%;
+    --border: 217 33% 17%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --elevated: 222 47% 16%;
+    --hover: 222 47% 18%;
+    --radius: 10px;
+    --shadow-soft-card: 0 4px 16px rgba(0, 0, 0, 0.24), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    --shadow-soft-card-strong: 0 8px 24px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -144,8 +140,8 @@ html { scroll-behavior: smooth; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
         "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
 }
@@ -157,112 +153,162 @@ body {
 }
 
 header.site-header {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 60%, #db2777 100%);
-    color: #fff;
-    padding: 56px 20px 64px;
+    background: linear-gradient(135deg, 
+        hsla(var(--accent), 0.2) 0%, 
+        hsla(var(--primary), 0.15) 50%,
+        hsla(var(--background), 1) 100%);
+    padding: 64px 20px 80px;
     text-align: center;
-    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+header.site-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, hsla(var(--primary), 0.15), transparent 50%),
+                radial-gradient(circle at 70% 50%, hsla(var(--accent), 0.12), transparent 50%);
+    pointer-events: none;
 }
 header.site-header h1 {
-    font-size: 2.4rem;
+    font-size: 2.5rem;
     letter-spacing: .5px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeIn 0.6s ease-out;
 }
 header.site-header p {
     font-size: 1.05rem;
-    opacity: .9;
+    color: hsl(var(--muted-foreground));
+    position: relative;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
-    margin: -32px 0 28px;
+    margin: -40px 0 32px;
+    animation: slideUp 0.5s ease-out 0.2s both;
 }
 .stat-card {
-    background: var(--card);
-    padding: 20px 22px;
+    background: hsl(var(--card));
+    padding: 22px 24px;
     border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft-card);
+    border: 1px solid hsl(var(--border));
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft-card-strong);
 }
 .stat-card h3 {
-    color: var(--muted);
+    color: hsl(var(--muted-foreground));
     font-size: .85rem;
     text-transform: uppercase;
     letter-spacing: .08em;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 .stat-card .value {
-    font-size: 1.9rem;
+    font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 .stat-card .value.text {
-    -webkit-text-fill-color: var(--text);
+    -webkit-text-fill-color: hsl(var(--foreground));
     background: none;
     font-size: 1.2rem;
 }
 
 .section-title {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin: 32px 0 16px;
+    margin: 40px 0 20px;
     display: flex;
     align-items: center;
     gap: 8px;
+    color: hsl(var(--foreground));
 }
 
 .reports-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+    animation: slideUp 0.5s ease-out 0.4s both;
 }
 .report-card {
-    background: var(--card);
+    background: hsl(var(--card));
     border-radius: var(--radius);
-    padding: 22px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    padding: 24px;
+    box-shadow: var(--shadow-soft-card);
+    border: 1px solid hsl(var(--border));
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
 }
 .report-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: #c7d2fe;
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-soft-card-strong), 0 0 20px hsla(var(--primary), 0.2);
+    border-color: hsla(var(--primary), 0.4);
 }
 .report-card .meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--muted);
+    color: hsl(var(--muted-foreground));
     font-size: .88rem;
 }
 .badge {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-size: .78rem;
     font-weight: 600;
     border: 1px solid transparent;
 }
-.badge.stock  { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
-.badge.market { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.badge.stock  { 
+    background: hsla(var(--primary), 0.15); 
+    color: hsl(var(--primary)); 
+    border-color: hsla(var(--primary), 0.3); 
+}
+.badge.market { 
+    background: hsla(var(--warning), 0.15); 
+    color: hsl(var(--warning)); 
+    border-color: hsla(var(--warning), 0.3); 
+}
 
 .report-card h3 {
-    font-size: 1.08rem;
+    font-size: 1.1rem;
     line-height: 1.45;
-    color: var(--text);
+    color: hsl(var(--foreground));
 }
 .report-card .summary {
-    color: var(--text-soft);
+    color: hsl(var(--muted-foreground));
     font-size: .94rem;
     line-height: 1.6;
     display: -webkit-box;
@@ -272,85 +318,101 @@ header.site-header p {
 }
 .report-card .read-more {
     margin-top: auto;
-    color: var(--primary);
+    color: hsl(var(--primary));
     font-weight: 600;
-    text-decoration: none;
     align-self: flex-start;
 }
-.report-card .read-more:hover { color: var(--primary-dark); }
 
 .empty-state {
-    background: var(--card);
-    border: 1px dashed var(--border);
+    background: hsl(var(--card));
+    border: 1px dashed hsl(var(--border));
     border-radius: var(--radius);
-    padding: 40px;
+    padding: 48px;
     text-align: center;
-    color: var(--muted);
+    color: hsl(var(--muted-foreground));
 }
 
 .report-content {
-    background: var(--card);
+    background: hsl(var(--card));
     border-radius: var(--radius);
-    padding: 40px 44px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
-    margin: 24px 0 36px;
+    padding: 40px 48px;
+    box-shadow: var(--shadow-soft-card);
+    border: 1px solid hsl(var(--border));
+    margin: 28px 0 40px;
+    animation: slideUp 0.45s ease-out;
 }
 .report-content h1,
 .report-content h2,
 .report-content h3,
 .report-content h4 {
-    color: var(--text);
+    color: hsl(var(--foreground));
     line-height: 1.35;
-    margin-top: 1.6em;
-    margin-bottom: .6em;
+    margin-top: 1.8em;
+    margin-bottom: .7em;
     font-weight: 700;
 }
 .report-content > h1:first-child { margin-top: 0; }
-.report-content h1 { font-size: 1.9rem; padding-bottom: 14px; border-bottom: 2px solid var(--border); }
-.report-content h2 { font-size: 1.45rem; padding-left: 12px; border-left: 4px solid var(--primary); }
-.report-content h3 { font-size: 1.18rem; color: var(--primary-dark); }
-.report-content h4 { font-size: 1.02rem; color: var(--text-soft); }
-.report-content p { margin: 0 0 1em; color: var(--text); }
-.report-content strong { color: var(--text); font-weight: 700; }
-.report-content em { color: var(--text-soft); }
-.report-content a { color: var(--primary); text-decoration: none; border-bottom: 1px dashed var(--primary); }
-.report-content a:hover { color: var(--primary-dark); }
+.report-content h1 { 
+    font-size: 2rem; 
+    padding-bottom: 16px; 
+    border-bottom: 2px solid hsl(var(--border));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.report-content h2 { 
+    font-size: 1.5rem; 
+    padding-left: 14px; 
+    border-left: 4px solid hsl(var(--primary)); 
+}
+.report-content h3 { font-size: 1.2rem; color: hsl(var(--primary)); }
+.report-content h4 { font-size: 1.05rem; color: hsl(var(--muted-foreground)); }
+.report-content p { margin: 0 0 1em; color: hsl(var(--foreground)); }
+.report-content strong { color: hsl(var(--foreground)); font-weight: 700; }
+.report-content em { color: hsl(var(--muted-foreground)); }
+.report-content a { 
+    color: hsl(var(--primary)); 
+    text-decoration: none; 
+    border-bottom: 1px dashed hsl(var(--primary)); 
+}
+.report-content a:hover { border-bottom-style: solid; }
 .report-content ul,
-.report-content ol { margin: 0 0 1em 1.4em; }
-.report-content li { margin-bottom: .35em; }
+.report-content ol { margin: 0 0 1em 1.6em; }
+.report-content li { margin-bottom: .4em; }
 .report-content blockquote {
-    margin: 1em 0;
-    padding: 12px 18px;
-    border-left: 4px solid var(--accent);
-    background: var(--bg-soft);
-    color: var(--text-soft);
+    margin: 1.2em 0;
+    padding: 14px 20px;
+    border-left: 4px solid hsl(var(--accent));
+    background: hsl(var(--elevated));
+    color: hsl(var(--muted-foreground));
     border-radius: 0 8px 8px 0;
 }
 .report-content hr {
     border: 0;
-    border-top: 1px solid var(--border);
-    margin: 2em 0;
+    border-top: 1px solid hsl(var(--border));
+    margin: 2.5em 0;
 }
 
 .report-content code {
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: .92em;
-    background: #eef2ff;
-    color: #3730a3;
-    padding: 2px 6px;
-    border-radius: 4px;
+    font-size: .9em;
+    background: hsla(var(--primary), 0.12);
+    color: hsl(var(--primary));
+    padding: 3px 7px;
+    border-radius: 5px;
 }
 .report-content pre {
-    background: var(--code-bg);
-    color: var(--code-text);
-    padding: 18px 20px;
-    border-radius: 10px;
+    background: hsl(222 47% 9%);
+    color: hsl(210 40% 92%);
+    padding: 20px 22px;
+    border-radius: var(--radius);
     overflow-x: auto;
-    margin: 1em 0;
+    margin: 1.2em 0;
     font-size: .9rem;
-    line-height: 1.55;
+    line-height: 1.6;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04);
+    border: 1px solid hsl(var(--border));
 }
 .report-content pre code {
     background: transparent;
@@ -360,11 +422,11 @@ header.site-header p {
 
 .table-wrap {
     overflow-x: auto;
-    margin: 1.2em 0;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
-    background: var(--card);
+    margin: 1.4em 0;
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-soft-card);
+    background: hsl(var(--card));
 }
 .report-content table {
     width: 100%;
@@ -372,74 +434,89 @@ header.site-header p {
     font-size: .94rem;
 }
 .report-content thead th {
-    background: var(--table-header-bg);
-    color: var(--text);
+    background: hsl(var(--elevated));
+    color: hsl(var(--foreground));
     font-weight: 700;
     text-align: left;
-    padding: 12px 14px;
-    border-bottom: 2px solid var(--border);
+    padding: 13px 16px;
+    border-bottom: 2px solid hsl(var(--border));
     white-space: nowrap;
 }
 .report-content tbody td {
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-soft);
+    padding: 12px 16px;
+    border-bottom: 1px solid hsl(var(--border));
+    color: hsl(var(--muted-foreground));
     vertical-align: top;
 }
-.report-content tbody tr:nth-child(even) td { background: var(--table-row-alt); }
-.report-content tbody tr:hover td { background: #eef2ff; color: var(--text); }
+.report-content tbody tr:hover td { 
+    background: hsl(var(--hover)); 
+    color: hsl(var(--foreground)); 
+}
 .report-content tbody tr:last-child td { border-bottom: none; }
 
 .report-content table td:first-child,
-.report-content table th:first-child { padding-left: 18px; }
+.report-content table th:first-child { padding-left: 20px; }
 .report-content table td:last-child,
-.report-content table th:last-child { padding-right: 18px; }
+.report-content table th:last-child { padding-right: 20px; }
 
 .report-content .admonition {
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin: 1.2em 0;
-    border-left: 4px solid var(--primary);
-    background: #eff6ff;
-    color: var(--text);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 1.4em 0;
+    border-left: 4px solid hsl(var(--primary));
+    background: hsla(var(--primary), 0.08);
+    color: hsl(var(--foreground));
 }
-.report-content .admonition.warning { border-color: var(--warning); background: #fffbeb; }
-.report-content .admonition.danger  { border-color: var(--danger);  background: #fef2f2; }
-.report-content .admonition.tip     { border-color: var(--success); background: #ecfdf5; }
-.report-content .admonition-title { font-weight: 700; margin-bottom: .3em; }
+.report-content .admonition.warning { 
+    border-color: hsl(var(--warning)); 
+    background: hsla(var(--warning), 0.08); 
+}
+.report-content .admonition.danger  { 
+    border-color: hsl(var(--danger));  
+    background: hsla(var(--danger), 0.08); 
+}
+.report-content .admonition.tip     { 
+    border-color: hsl(var(--success)); 
+    background: hsla(var(--success), 0.08); 
+}
+.report-content .admonition-title { font-weight: 700; margin-bottom: .4em; }
 
 .back-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin: 18px 0;
-    color: var(--primary);
+    margin: 20px 0;
+    color: hsl(var(--primary));
     text-decoration: none;
     font-weight: 600;
+    transition: transform 0.2s ease;
 }
-.back-link:hover { color: var(--primary-dark); }
+.back-link:hover { transform: translateX(-4px); }
 
 footer.site-footer {
     text-align: center;
-    padding: 36px 20px 56px;
-    color: var(--muted);
+    padding: 40px 20px 60px;
+    color: hsl(var(--muted-foreground));
     font-size: .9rem;
-    border-top: 1px solid var(--border);
-    margin-top: 48px;
-    background: var(--card);
+    border-top: 1px solid hsl(var(--border));
+    margin-top: 56px;
+    background: hsl(var(--card));
 }
-footer.site-footer a { color: var(--primary); text-decoration: none; }
+footer.site-footer a { 
+    color: hsl(var(--primary)); 
+    text-decoration: none; 
+}
 footer.site-footer a:hover { text-decoration: underline; }
 
 @media (max-width: 768px) {
-    header.site-header { padding: 40px 18px 56px; }
-    header.site-header h1 { font-size: 1.7rem; }
+    header.site-header { padding: 48px 18px 64px; }
+    header.site-header h1 { font-size: 1.8rem; }
     .container { padding: 18px; }
     .reports-grid { grid-template-columns: 1fr; }
-    .report-content { padding: 22px; }
-    .report-content h1 { font-size: 1.5rem; }
-    .report-content h2 { font-size: 1.2rem; }
-    .stats { margin-top: -24px; }
+    .report-content { padding: 24px; }
+    .report-content h1 { font-size: 1.6rem; }
+    .report-content h2 { font-size: 1.3rem; }
+    .stats { margin-top: -28px; }
 }
 """
     with open(DOCS_DIR / "css" / "style.css", "w", encoding="utf-8") as f:
@@ -476,7 +553,7 @@ def generate_index_page(reports: List[Dict]):
             badge_text = "大盘复盘" if r["is_market_review"] else "个股分析"
             href = "reports/" + r["filename"].replace(".md", ".html")
             cards_html += f"""
-            <a class="report-card" href="{href}" style="text-decoration:none;color:inherit;">
+            <a class="report-card" href="{href}">
                 <div class="meta">
                     <span>📅 {r['date_str']}</span>
                     <span class="badge {badge_cls}">{badge_text}</span>
@@ -488,7 +565,7 @@ def generate_index_page(reports: List[Dict]):
     else:
         cards_html = """
             <div class="empty-state">
-                <p style="font-size:1.1rem;margin-bottom:6px;">📭 暂无分析报告</p>
+                <p style="font-size:1.1rem;margin-bottom:8px;">📭 暂无分析报告</p>
                 <p>下次每日分析任务运行后，报告将自动出现在这里。</p>
             </div>"""
 
@@ -513,7 +590,7 @@ def generate_index_page(reports: List[Dict]):
 
 <footer class="site-footer">
     <p>🤖 由 AI 自动生成 · 数据仅供参考，不构成投资建议</p>
-    <p style="margin-top:8px;">
+    <p style="margin-top:10px;">
         <a href="https://github.com/greatluca666/daily_stock_analysis" target="_blank" rel="noopener">GitHub 仓库</a>
     </p>
 </footer>
